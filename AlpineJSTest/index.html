@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>AlpineJSTest</title>
+        <script src="//unpkg.com/alpinejs" defer></script>
+        <style>
+            #doghouse>div{
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                column-gap: 5vw;
+                justify-content: center;
+            }
+            #doghouse>div>div>img{
+                width: 20vw;
+            }
+            #doghouse>div>div{
+                border: black solid;
+            }
+        </style>
+    </head>
+    <body>
+        <div x-data = "{num:1}">
+            <label for = "numberOfDogs">How many dogs you want bud?</label>
+            <input x-model="num" id = "numberOfDogs" type = "number">
+            <button x-on:click="()=>{
+                if(num <= 0){
+                    alert('number has to be more than 0');
+                    return;
+                };
+                if(num > 50){
+                    alert('number has to be less than 50');
+                    return;
+                }
+                getDogs(num);
+            }">Click me for dogs!</button>
+        </div>
+        <div id = "doghouse">
+        </div>
+        <script>
+            /**
+             * @param {number} num
+             */
+            async function getDogs(num){
+                const response = await fetch(`https://dog.ceo/api/breeds/image/random/${Math.round(num)}`);
+                if(!response.ok) return;
+                const dogJson = await response.json();
+                if(dogJson.status !== "success") return;
+                const doghouseDiv = document.getElementById("doghouse");
+                let doggos = doghouseDiv.firstChild;
+                if(doggos !== null) doggos.remove();
+                doggos = document.createElement("div");
+                for(let dogsrc of dogJson.message){
+                    const dogCard = document.createElement("div");
+                    const img = document.createElement("img");
+                    img.src = dogsrc;
+                    const dogbreedTitle = document.createElement("h2");
+                    dogbreedTitle.textContent = dogsrc.split("/")[4];
+                    dogCard.appendChild(dogbreedTitle);
+                    dogCard.appendChild(img);
+
+                    doggos.appendChild(dogCard);
+                }
+                doghouseDiv.appendChild(doggos);
+            }
+        </script>
+    </body>
+</html>
